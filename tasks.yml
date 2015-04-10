@@ -1,0 +1,38 @@
+---
+# tasks file for this role
+
+- name: Install Python so Ansible commands can run
+  raw: tce-load -wil python
+
+- name: Install persist-autorestore.sh
+  copy: >
+    src=persist-autorestore.sh
+    dest=/var/lib/boot2docker/persist-autorestore.sh
+    owner=root group=staff mode=0775
+  sudo: yes
+
+- name: Ensure custom bootsync.sh exists
+  lineinfile: >
+    line=#!/bin/sh
+    dest=/var/lib/boot2docker/bootsync.sh
+    create=yes insertbefore=BOF owner=root group=staff mode=0775
+  sudo: yes
+
+- name: Add persist-autorestore.sh to custom bootsync.sh
+  lineinfile: >
+    line=/var/lib/boot2docker/persist-autorestore.sh
+    insertafter=#!/bin/sh
+    dest=/var/lib/boot2docker/bootsync.sh
+  sudo: yes
+
+- name: Get backup partition name
+  script: get-partition.sh
+  register: backup_partition
+
+- name: Exclude .ansible from backup
+  lineinfile: line=.ansible dest=/opt/.xfiletool.lst
+
+- name: Run initial backup
+  command: /usr/bin/filetool.sh -b {{backup_partition.stdout}}
+  args:
+    creates: /mnt/{{backup_partition.stdout}}/mydata.tgz
