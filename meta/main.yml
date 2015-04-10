@@ -6,6 +6,7 @@ galaxy_info:
   min_ansible_version: 1.8
   platforms:
     - name: TinyCore
+    - name: boot2docker
   categories:
     - docker
     - development
