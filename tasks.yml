@@ -1,8 +1,11 @@
 ---
 # tasks file for this role
 
-- name: Install Python so Ansible commands can run
-  raw: tce-load -wil python
+- name: Download Python (so Ansible commands can run)
+  raw: tce-load -w python
+
+- name: Install Python (so Ansible commands can run)
+  raw: tce-load -ils python
 
 - name: Install persist-autorestore.sh
   copy: >
